@@ -1,0 +1,59 @@
+/************************************************************
+ Class    : PrefixHeader.pch
+ Describe : 前缀头文件，用于引入全局头文件
+ Company  : Prient
+ Author   : Yanzheng 严正
+ Date     : 2017-10-10
+ Version  : 1.0
+ Declare  : Copyright © 2017 Yanzheng. All rights reserved.
+ ************************************************************/
+
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+#import "Marcos.h"
+#import "Codeing.h"
+#import "Singleton.h"
+#import "Variable.h"
+
+#pragma mark - 自己扩展的类
+#import "UIView+YZ.h"
+#import "UIColor+YZ.h"
+#import "UIImage+YZ.h"
+#import "CALayer+YZ.h"
+#import "UIDevice+YZ.h"
+#import "YBPopupMenu+YZ.h"
+#import "MBProgressHUD+YZ.h"
+//#import "UINavigationBar+YZ.h"
+
+#pragma mark - 自己封装的方法类
+#import "LoginUtil.h"
+#import "BaseScrollView.h"
+#import "BaseHandleUtil.h"
+#import "BaseSandBoxUtil.h"
+#import "BaseSettingUtil.h"
+#import "BaseSecurityUtil.h"
+#import "LoginViewController.h"
+#import "BaseWebViewController.h"
+
+#pragma mark - 自己封装的组件、处理类
+#import "YZCycleScrollView.h"
+#import "YZBottomSelectView.h"
+#import "YZNetworkingManager.h"
+
+#pragma mark - 第三方库
+#import "YYModel.h"
+#import "Masonry.h"
+#import "SAMKeychain.h"
+#import "FCAlertView.h"
+#import "TTTAttributedLabel.h"
+#import "UIImageView+WebCache.h"
+#import "JZNavigationExtension.h"
+#import "JDStatusBarNotification.h"
+#import "UIAlertController+Blocks.h"
+
+
+#endif /* PrefixHeader_pch */
