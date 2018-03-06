@@ -46,12 +46,10 @@ SingletonM(MineUtil)
     BaseTableModelGroup *group3 = [[BaseTableModelGroup alloc] initWithHeaderTitle:nil footerTitle:nil settingItems:opinion, about, nil];
     [items addObject:group3];
     
-    /*
     BaseTableModelItem *test = [BaseTableModelItem createWithImageName:@"mine_test" title:@"测试"];
     
     BaseTableModelGroup *group4 = [[BaseTableModelGroup alloc] initWithHeaderTitle:nil footerTitle:nil settingItems:test, nil];
     [items addObject:group4];
-     */
     
     return items;
     

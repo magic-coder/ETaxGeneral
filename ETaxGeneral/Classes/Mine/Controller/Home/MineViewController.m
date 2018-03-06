@@ -198,11 +198,9 @@
     if([item.title isEqualToString:@"关于"]){
         [self.navigationController pushViewController:[[NSClassFromString(@"AboutViewController") class] new] animated:YES];
     }
-    /*
     if([item.title isEqualToString:@"测试"]){
         [self.navigationController pushViewController:[[NSClassFromString(@"TestViewController") class] new] animated:YES];
     }
-     */
 }
 
 @end
