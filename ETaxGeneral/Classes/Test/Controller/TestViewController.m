@@ -211,7 +211,7 @@
     }
     
     if(6 == btn.tag){
-        BaseWebViewController *webVC = [[BaseWebViewController alloc] initWithURL:@"https://www.qq.com"];
+        BaseWebViewController *webVC = [[BaseWebViewController alloc] initWithURL:@"http://192.168.0.101:8080/yan-test/consult/init"];
         [self.navigationController pushViewController:webVC animated:YES];
     }
     
