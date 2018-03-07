@@ -29,8 +29,6 @@
 @property (nonatomic, strong) MenuView *menu;                               // 左滑菜单
 @property (nonatomic, strong) LeftMenuView *demo;                           // 左侧菜单
 
-@property (nonatomic, strong) UIButton *tiggerBtn;                          // 快捷菜单按钮
-
 @property (nonatomic, assign) int pageNo;                                   // 页码值
 @property (nonatomic, assign) int totalPage;                                // 最大页
 
@@ -55,13 +53,16 @@ static NSString * const reuseIdentifier = @"newsTableViewCell";
     
     //[self.navigationController.navigationBar yz_setBackgroundColor:[UIColor clearColor]];
     self.view.backgroundColor = DEFAULT_BACKGROUND_COLOR;
-    self.jz_navigationBarBackgroundAlpha = 0.0f;
+    //self.jz_navigationBarBackgroundAlpha = 0.0f;
+    
+    // 导航栏平滑过渡，延展视图包含部包含不透明的NavigationBar
+    self.extendedLayoutIncludesOpaqueBars = YES;
+    
+    [self navigationInitialize];
     
     [self.view addSubview:self.tableView];
-    [self.view addSubview:self.tiggerBtn];
     
     [self.view sendSubviewToBack:self.tableView];// 设置视图层级为最下层
-    [self.view bringSubviewToFront:self.tiggerBtn];// 设置视图层级为最上层
     [self initializeSlideMenu];// 初始化左侧滑动菜单
     
     [self autoLayout];
@@ -79,19 +80,15 @@ static NSString * const reuseIdentifier = @"newsTableViewCell";
         make.edges.equalTo(self.view);
     }];
     
-    [self.tiggerBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(self.view).offset(-5);
-        make.right.equalTo(self.view).offset(-5);
-        make.width.mas_equalTo(60);
-        make.height.mas_equalTo(60);
-    }];
 }
 #pragma mark - 视图即将显示
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
+    [self.navigationController.navigationBar yz_initialize];
+    
     [self scrollViewDidScroll:self.tableView];
-    [self.navigationController.navigationBar setShadowImage:[UIImage new]];
+    //[self.navigationController.navigationBar setShadowImage:[UIImage new]];
     
     // 判断是否登录
     if(IS_LOGIN){
@@ -108,27 +105,11 @@ static NSString * const reuseIdentifier = @"newsTableViewCell";
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     
-    //[self.navigationController.navigationBar yz_reset];
+    [self.navigationController.navigationBar yz_reset];
 }
 #pragma mark - 滚动屏幕渐进渐出顶部导航栏
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    UIColor * color = DEFAULT_BLUE_COLOR;
-    CGFloat offsetY = scrollView.contentOffset.y;
-    if (offsetY > NAVBAR_CHANGE_POINT) {
-        CGFloat alpha = MIN(1, 1 - ((NAVBAR_CHANGE_POINT + HEIGHT_STATUS + HEIGHT_NAVBAR - offsetY) / (HEIGHT_STATUS + HEIGHT_NAVBAR)));
-        if(alpha > 0.95)
-            alpha = 0.95;
-        //[self.navigationController.navigationBar yz_setBackgroundColor:[color colorWithAlphaComponent:alpha]];
-        self.jz_navigationBarBackgroundAlpha = alpha;
-        if(alpha > 0.6)
-            self.navigationItem.title = @"首页";
-    } else {
-        //[self.navigationController.navigationBar yz_setBackgroundColor:[color colorWithAlphaComponent:0]];
-        self.jz_navigationBarBackgroundAlpha = 0.0f;
-        CGFloat alpha = MIN(1, 1 - ((NAVBAR_CHANGE_POINT + HEIGHT_STATUS + HEIGHT_NAVBAR - offsetY) / (HEIGHT_STATUS + HEIGHT_NAVBAR)));
-        if(alpha < 0.6)
-            self.navigationItem.title = nil;
-    }
+    [self.navigationController.navigationBar yz_changeColor:DEFAULT_BLUE_COLOR WithScrollView:scrollView AndValue:90.0f];
 }
 
 #pragma mark - 定时器循环调用方法
@@ -159,17 +140,16 @@ static NSString * const reuseIdentifier = @"newsTableViewCell";
         _data = [[NSMutableArray alloc] init];
         
         // 顶部轮播焦点图数据
-
+        /*
         NSDictionary *loopDict = [dataDict objectForKey:@"loopResult"];
         NSArray *titles = [loopDict objectForKey:@"titles"];
         NSArray *images = [loopDict objectForKey:@"images"];
         NSArray *urls = [loopDict objectForKey:@"urls"];
-
-        /*
-        NSArray *titles = @[@"[学习十九大报告·一日一课]建设美丽中国", @"在新的历史方位上认识和推动国家治理体系和治理能力现代化", @"中央首次派宣讲团赴港宣讲十九大 这位正部领衔", @"多架轰6K等战机飞赴南海战斗巡航的背后"];
-        NSArray *images = @[@"cycle_1", @"cycle_2", @"cycle_3", @"cycle_4"];
-        NSArray *urls = @[@"https://www.qq.com", @"https://www.alibaba.com", @"https://www.baidu.com", @"https://www.jd.com"];
         */
+        
+        NSArray *titles = @[@"腾讯马化腾，谈2018区块链对科技的影响", @"阿里巴巴技术这么年所产生的影响力", @"Github遭遇史上最强DDos攻击，持续14分钟"];
+        NSArray *images = @[@"cycle_1", @"cycle_2", @"cycle_3"];
+        NSArray *urls = @[@"https://www.qq.com", @"https://www.alibaba.com", @"https://www.github.com"];
         
         _cycleScrollView = [[YZCycleScrollView alloc] initWithFrame:CGRectMake(0, 0, WIDTH_SCREEN, floorf((CGFloat)WIDTH_SCREEN/1.8)) titles:titles images:images urls:urls autoPlay:YES delay:2.7f];
         _cycleScrollView.delegate = self;
@@ -330,15 +310,6 @@ static NSString * const reuseIdentifier = @"newsTableViewCell";
         [_sunnyRefreshControl attachToScrollView:self.tableView];
     }
     return _sunnyRefreshControl;
-} 
-- (UIButton *)tiggerBtn {
-    if(!_tiggerBtn){
-        _tiggerBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-        [_tiggerBtn setImage:[UIImage imageNamed:@"common_trigger"] forState:UIControlStateNormal];
-        [_tiggerBtn setImage:[UIImage imageNamed:@"common_triggerHL"] forState:UIControlStateHighlighted];
-        [_tiggerBtn addTarget:self action:@selector(tiggerBtnAction:) forControlEvents:UIControlEventTouchUpInside];
-    }
-    return _tiggerBtn;
 }
 
 #pragma mark - 初始化左侧快捷滑动菜单
@@ -432,11 +403,6 @@ static NSString * const reuseIdentifier = @"newsTableViewCell";
     }
 }
 
-#pragma mark - 菜单按钮点击左侧弹出菜单事件
-- (void)tiggerBtnAction:(UIButton *)sender {
-    [self.menu show];
-}
-
 #pragma mark - 下拉刷新动画方，开始执行方法
 -(void)sunnyControlDidStartAnimation{
     /*
@@ -445,6 +411,60 @@ static NSString * const reuseIdentifier = @"newsTableViewCell";
     });
      */
     [self initializeData];
+}
+
+#pragma mark - 初始化导航栏样式UI
+- (void)navigationInitialize {
+    //导航栏左按钮
+    UIImage *imgLeft = [[UIImage imageNamed:@"navigation_mine"]imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc]initWithImage:imgLeft style:UIBarButtonItemStylePlain target:self action:@selector(navigationLeftBtnItemClick:)];
+    self.navigationItem.leftBarButtonItem = leftItem;
+    
+    //导航栏右按钮
+    /*
+    UIImage *imgRight = [[UIImage imageNamed:@"navigation_right"]imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+     UIBarButtonItem *rightItem = [[UIBarButtonItem alloc]initWithImage:imgRight style:UIBarButtonItemStylePlain target:self action:@selector(navigationRightBtnItemClick:)];
+    self.navigationItem.rightBarButtonItem = rightItem;
+    */
+    
+    //中间搜索框
+    UITextField *searchTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, WIDTH_SCREEN - 100, 26)];
+    searchTextField.layer.cornerRadius = 5;
+    searchTextField.layer.borderWidth = .5;
+    searchTextField.clearButtonMode = UITextFieldViewModeWhileEditing;
+    searchTextField.layer.borderColor = RgbColor(255.0f, 255.0f, 255.0f, 0.0f).CGColor;
+    searchTextField.backgroundColor = RgbColor(255.0f, 255.0f, 255.0f, 0.26f);
+    //searchTextField.borderStyle = UITextBorderStyleRoundedRect;
+    //searchTextField.alpha = 0.3f;
+    self.navigationItem.titleView = searchTextField;
+    
+    UIImageView *imgSearch = [[UIImageView alloc] initWithFrame:CGRectMake(searchTextField.originX+4, searchTextField.originY+1, 24, 24)];
+    imgSearch.image = [UIImage imageNamed:@"app_common_searchHL"];
+    [self.navigationItem.titleView addSubview:imgSearch];
+    
+    UILabel *searchLabel = [[UILabel alloc] initWithFrame:CGRectMake(searchTextField.originX+26+10, searchTextField.originY, searchTextField.frameWidth-imgSearch.frameWidth-20, 26)];
+    searchLabel.textColor = [UIColor whiteColor];
+    searchLabel.font = [UIFont systemFontOfSize:14.0f];
+    searchLabel.text = @"热门搜索";
+    [self.navigationItem.titleView addSubview:searchLabel];
+    
+    UIButton *btn_search_frame = [UIButton buttonWithType:UIButtonTypeCustom];
+    btn_search_frame.frame = searchTextField.frame;
+    btn_search_frame.tag = 1;
+    [btn_search_frame addTarget:self action:@selector(searchBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+    [self.navigationItem.titleView addSubview:btn_search_frame];   // 搜索按钮
+}
+
+- (void)searchBtnClick:(UIButton *)sender{
+    UIViewController *viewController = [[NSClassFromString(@"AppSearchViewController") class] new];
+    [self.navigationController pushViewController:viewController animated:YES];
+}
+
+- (void)navigationLeftBtnItemClick:(UIBarButtonItem *)sender{
+    [self.menu show];
+}
+
+- (void)navigationRightBtnItemClick:(UIBarButtonItem *)sender{
 }
 
 @end
