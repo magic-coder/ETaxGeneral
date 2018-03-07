@@ -107,6 +107,13 @@ static NSString * const reuseIdentifier = @"appSubCell";
     [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
+    // 设置顶部状态栏字体为白色
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+
 #pragma mark - Table view data source
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
