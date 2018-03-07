@@ -27,7 +27,7 @@
 #import "UIDevice+YZ.h"
 #import "YBPopupMenu+YZ.h"
 #import "MBProgressHUD+YZ.h"
-//#import "UINavigationBar+YZ.h"
+#import "UINavigationBar+YZ.h"
 
 #pragma mark - 自己封装的方法类
 #import "LoginUtil.h"
