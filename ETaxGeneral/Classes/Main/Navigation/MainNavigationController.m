@@ -21,7 +21,6 @@
     // Do any additional setup after loading the view.
     
     self.delegate = self;
-    
     self.navigationBar.barTintColor = DEFAULT_BLUE_COLOR;// 设置导航栏背景颜色
     //self.navigationBar.translucent = NO;// 设置导航栏不透明
     //self.navigationBar.barStyle = UIBaselineAdjustmentNone;// 去除 navigationBar 下面的黑线
@@ -56,7 +55,8 @@
         isNavigationBarHidden = isNavigationBarHidden || [viewController isKindOfClass:[NSClassFromString(hidenControllerName) class]];
     }
     // 控制隐藏、显示顶部导航栏
-    //[viewController.navigationController setNavigationBarHidden:isNavigationBarHidden animated:animated];
+    //[viewController.navigationController setNavigationBarHidden:isNavigationBarHidden animated:animated]; // 不推荐，消失的很突兀，会有BUG
+    //viewController.navigationController.navigationBar.hidden = isNavigationBarHidden; // 推荐，过渡相对平滑，不会有BUG
     viewController.jz_navigationBarHidden = isNavigationBarHidden;
 }
 
