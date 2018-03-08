@@ -13,7 +13,7 @@
 #import "NewsModel.h"
 #import "NewsUtil.h"
 #import "MJRefresh.h"
-#import "YALSunnyRefreshControl.h"
+#import "TGRefresh.h"
 
 #import "MenuView.h"
 #import "LeftMenuView.h"
@@ -23,8 +23,6 @@
 @interface NewsViewController () <UITableViewDelegate, UITableViewDataSource, YZCycleScrollViewDelegate, MenuViewDelegate, LeftMenuViewDelegate>
 
 @property (nonatomic, strong) UITableView *tableView;
-
-@property (nonatomic, strong) YALSunnyRefreshControl *sunnyRefreshControl;  // 顶部刷新动画视图
 
 @property (nonatomic, strong) MenuView *menu;                               // 左滑菜单
 @property (nonatomic, strong) LeftMenuView *demo;                           // 左侧菜单
@@ -57,6 +55,7 @@ static NSString * const reuseIdentifier = @"newsTableViewCell";
     
     // 导航栏平滑过渡，延展视图包含部包含不透明的NavigationBar
     self.extendedLayoutIncludesOpaqueBars = YES;
+    self.automaticallyAdjustsScrollViewInsets = NO;
     
     [self navigationInitialize];
     
@@ -125,7 +124,7 @@ static NSString * const reuseIdentifier = @"newsTableViewCell";
         // 初始化数据
         if(nil == _data || _data.count <= 0){
             _isInit = NO;
-            [self.sunnyRefreshControl beginRefreshing]; // 马上进入刷新状态
+            [self.tableView.tg_header beginRefreshing]; // 马上进入刷新状态
         }
     }
 }
@@ -166,7 +165,7 @@ static NSString * const reuseIdentifier = @"newsTableViewCell";
         if(_totalPage > 1)
             self.tableView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];    // 设置上拉加载
         
-        [self.sunnyRefreshControl endRefreshing];   // 结束头部刷新动画
+        [self.tableView.tg_header endRefreshing];   // 结束头部刷新动画
         
         [self.tableView reloadData];    // 重新加载数据
         
@@ -178,10 +177,10 @@ static NSString * const reuseIdentifier = @"newsTableViewCell";
         }
         
     } failure:^(NSString *error) {
-        [self.sunnyRefreshControl endRefreshing];   // 结束头部刷新动画
+        [self.tableView.tg_header endRefreshing];   // 结束头部刷新动画
         [MBProgressHUD showHUDView:self.view text:error progressHUDMode:YZProgressHUDModeShow]; // 错误提示
     } invalid:^(NSString *msg) {
-        [self.sunnyRefreshControl endRefreshing];   // 结束头部刷新动画
+        [self.tableView.tg_header endRefreshing];   // 结束头部刷新动画
         
         SHOW_RELOGIN_VIEW
     }];
@@ -297,19 +296,10 @@ static NSString * const reuseIdentifier = @"newsTableViewCell";
         _tableView.dataSource = self;
         // 设置下拉刷新
         //_tableView.mj_header = [MJRefreshNormalHeader headerWithRefreshingTarget:self refreshingAction:@selector(initializeData)];
-        // 设置下拉刷新动画视图
-        [self sunnyRefreshControl];
+        // 设置下拉刷新视图
+        _tableView.tg_header = [TGRefreshOC  refreshWithTarget:self action:@selector(initializeData) config:nil];
     }
     return _tableView;
-}
-
-- (YALSunnyRefreshControl *)sunnyRefreshControl {
-    if(!_sunnyRefreshControl){
-        _sunnyRefreshControl = [[YALSunnyRefreshControl alloc] init];
-        [_sunnyRefreshControl addTarget:self action:@selector(sunnyControlDidStartAnimation) forControlEvents:UIControlEventValueChanged];
-        [_sunnyRefreshControl attachToScrollView:self.tableView];
-    }
-    return _sunnyRefreshControl;
 }
 
 #pragma mark - 初始化左侧快捷滑动菜单
@@ -401,16 +391,6 @@ static NSString * const reuseIdentifier = @"newsTableViewCell";
         vc.jz_navigationBarBackgroundAlpha = 1.0f;
         [super.navigationController pushViewController:vc animated:YES];
     }
-}
-
-#pragma mark - 下拉刷新动画方，开始执行方法
--(void)sunnyControlDidStartAnimation{
-    /*
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self.sunnyRefreshControl endRefreshing];
-    });
-     */
-    [self initializeData];
 }
 
 #pragma mark - 初始化导航栏样式UI
