@@ -66,6 +66,9 @@
 		18777E511FF2264F00BBA0FD /* NSString+Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 18777E491FF2264E00BBA0FD /* NSString+Base64.m */; };
 		18777E521FF2264F00BBA0FD /* NSData+CommonCrypto.m in Sources */ = {isa = PBXBuildFile; fileRef = 18777E4E1FF2264E00BBA0FD /* NSData+CommonCrypto.m */; };
 		18777E531FF2264F00BBA0FD /* NSData+Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 18777E4F1FF2264E00BBA0FD /* NSData+Base64.m */; };
+		187B237F204F8E3A00FAC127 /* UIScrollView+TGRefreshOC.m in Sources */ = {isa = PBXBuildFile; fileRef = 187B237A204F8E3A00FAC127 /* UIScrollView+TGRefreshOC.m */; };
+		187B2380204F8E3A00FAC127 /* TGRefreshOC.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 187B237B204F8E3A00FAC127 /* TGRefreshOC.bundle */; };
+		187B2381204F8E3A00FAC127 /* TGRefreshOC.m in Sources */ = {isa = PBXBuildFile; fileRef = 187B237C204F8E3A00FAC127 /* TGRefreshOC.m */; };
 		1881C0271FCFEC23005E6AD6 /* YALSunnyRefreshControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 1881C0231FCFEC23005E6AD6 /* YALSunnyRefreshControl.m */; };
 		1881C0281FCFEC23005E6AD6 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1881C0241FCFEC23005E6AD6 /* Images.xcassets */; };
 		1881C0291FCFEC23005E6AD6 /* YALSunnyRefreshControl.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1881C0261FCFEC23005E6AD6 /* YALSunnyRefreshControl.xib */; };
@@ -355,6 +358,12 @@
 		18777E4D1FF2264E00BBA0FD /* NSString+Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Base64.h"; sourceTree = "<group>"; };
 		18777E4E1FF2264E00BBA0FD /* NSData+CommonCrypto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+CommonCrypto.m"; sourceTree = "<group>"; };
 		18777E4F1FF2264E00BBA0FD /* NSData+Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Base64.m"; sourceTree = "<group>"; };
+		187B2379204F8E3A00FAC127 /* TGRefresh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TGRefresh.h; sourceTree = "<group>"; };
+		187B237A204F8E3A00FAC127 /* UIScrollView+TGRefreshOC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+TGRefreshOC.m"; sourceTree = "<group>"; };
+		187B237B204F8E3A00FAC127 /* TGRefreshOC.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = TGRefreshOC.bundle; sourceTree = "<group>"; };
+		187B237C204F8E3A00FAC127 /* TGRefreshOC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TGRefreshOC.m; sourceTree = "<group>"; };
+		187B237D204F8E3A00FAC127 /* UIScrollView+TGRefreshOC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+TGRefreshOC.h"; sourceTree = "<group>"; };
+		187B237E204F8E3A00FAC127 /* TGRefreshOC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TGRefreshOC.h; sourceTree = "<group>"; };
 		1881C0231FCFEC23005E6AD6 /* YALSunnyRefreshControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YALSunnyRefreshControl.m; sourceTree = "<group>"; };
 		1881C0241FCFEC23005E6AD6 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		1881C0251FCFEC23005E6AD6 /* YALSunnyRefreshControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YALSunnyRefreshControl.h; sourceTree = "<group>"; };
@@ -951,6 +960,7 @@
 				18E90D541FEB58A3004E1282 /* FCAlertView */,
 				1822C0661FF0E84E00971164 /* SAMKeychain */,
 				18AE73F31F9854C700E357D1 /* SDWebImage */,
+				187B2378204F8E3A00FAC127 /* TGRefreshOC */,
 				18AE73DF1F98547D00E357D1 /* AFNetworking */,
 				18E4EDAF1F9F213900CAB201 /* YBPopupMenu */,
 				18AE74411F9854E900E357D1 /* MBProgressHUD */,
@@ -1259,6 +1269,19 @@
 				18777E4E1FF2264E00BBA0FD /* NSData+CommonCrypto.m */,
 			);
 			path = AES;
+			sourceTree = "<group>";
+		};
+		187B2378204F8E3A00FAC127 /* TGRefreshOC */ = {
+			isa = PBXGroup;
+			children = (
+				187B2379204F8E3A00FAC127 /* TGRefresh.h */,
+				187B237A204F8E3A00FAC127 /* UIScrollView+TGRefreshOC.m */,
+				187B237B204F8E3A00FAC127 /* TGRefreshOC.bundle */,
+				187B237C204F8E3A00FAC127 /* TGRefreshOC.m */,
+				187B237D204F8E3A00FAC127 /* UIScrollView+TGRefreshOC.h */,
+				187B237E204F8E3A00FAC127 /* TGRefreshOC.h */,
+			);
+			path = TGRefreshOC;
 			sourceTree = "<group>";
 		};
 		1881C0221FCFEC23005E6AD6 /* YALSunnyRefreshControll */ = {
@@ -2203,6 +2226,7 @@
 				18E90D611FEB58A3004E1282 /* .gitkeep in Resources */,
 				187030451FF5E08800D5B0AE /* Alert.xcassets in Resources */,
 				18E90D641FEB58A3004E1282 /* heart.png in Resources */,
+				187B2380204F8E3A00FAC127 /* TGRefreshOC.bundle in Resources */,
 				18AC774C1FA8595100EB630B /* root-cert.der in Resources */,
 				18E90D671FEB58A3004E1282 /* star.png in Resources */,
 				186FF2D31FD934A900F76DF4 /* btnsound.caf in Resources */,
@@ -2312,6 +2336,7 @@
 				18FCCDA31FA703D000424A0C /* ViewController+MASAdditions.m in Sources */,
 				180A90B61FB2DFFB00F7D213 /* BaseTableModel.m in Sources */,
 				189B559A1FC8231B003031A9 /* MsgDetailModel.m in Sources */,
+				187B237F204F8E3A00FAC127 /* UIScrollView+TGRefreshOC.m in Sources */,
 				189B537F2044023C00F61FCF /* UINavigationController+JZExtension.m in Sources */,
 				18A909D41FE280D600104B0C /* LeftMenuView.m in Sources */,
 				1836FCC41FA1F6AB00ABDA10 /* NewsUtil.m in Sources */,
@@ -2389,6 +2414,7 @@
 				18C192371FCBBC6400A90B22 /* MsgDetailViewController.m in Sources */,
 				18FCCD861FA6F6E400424A0C /* BaseScrollView.m in Sources */,
 				18A1FB051FBD2C6600AA07DC /* AboutViewController.m in Sources */,
+				187B2381204F8E3A00FAC127 /* TGRefreshOC.m in Sources */,
 				1881C06B1FCFFD51005E6AD6 /* MJRefreshAutoFooter.m in Sources */,
 				1822C06B1FF0E84F00971164 /* SAMKeychainQuery.m in Sources */,
 				180A90BF1FB2E2B800F7D213 /* BaseTableViewController.m in Sources */,
