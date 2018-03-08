@@ -391,7 +391,6 @@ typedef NS_ENUM(NSInteger, AppViewType) {
     }
     if(sender.tag == 2){
         viewController = [[NSClassFromString(@"AppEditViewController") class] new];
-        viewController.jz_navigationBarTintColor = [UIColor whiteColor];
     }
     if(sender.tag == 21){   // 通知公告
         url = [NSString stringWithFormat:@"%@public/notice/10/1", SERVER_URL];
