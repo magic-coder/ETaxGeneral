@@ -71,6 +71,14 @@ static NSString * const reuseHeaderIdentifier = @"reuseHeaderIdentifier";
     [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;// 设置顶部状态栏字体为黑色
     self.navigationController.navigationBar.tintColor = DEFAULT_BLUE_COLOR;// 设置导航栏itemBar字体颜色
     self.navigationController.navigationBar.titleTextAttributes = @{ NSForegroundColorAttributeName : [UIColor blackColor] };// 设置导航栏title标题字体颜色
+    self.jz_navigationBarTintColor = [UIColor whiteColor];
+}
+
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
+    self.jz_navigationBarTintColor = DEFAULT_BLUE_COLOR;
 }
 
 #pragma mark - 初始化加载数据
