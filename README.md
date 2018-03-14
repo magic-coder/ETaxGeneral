@@ -60,6 +60,7 @@ YZBottomSelectView | 1.0.1 | 底部选择框 | [https://github.com/micyo202/YZBo
 
 名称 | 版本号 | 描述 | 网址
 --- | --- | --- | ---
+AES | - | AES加解密算法 | -
 Sangfor | 7.5.2.77860 | VPN服务 | [https://pan.baidu.com/s/1i4OvN1b](https://pan.baidu.com/s/1i4OvN1b)
 Masonry | 1.1.0 | 自适应布局 | [https://github.com/SnapKit/Masonry](https://github.com/SnapKit/Masonry)
 YYModel | 1.0.4 | 模型转换 | [https://github.com/ibireme/YYModel](https://github.com/ibireme/YYModel)
@@ -72,5 +73,7 @@ YBPopupMenu | 1.1.0 | 气泡菜单 | [https://github.com/lyb5834/YBPopupMenu](ht
 MBProgressHUD | 1.1.0 | 浮动提示框 | [https://github.com/jdg/MBProgressHUD](https://github.com/jdg/MBProgressHUD)
 PCGestureUnlock | 1.0.0 | 手势密码 | [https://github.com/iosdeveloperpanc/PCGestureUnlock](https://github.com/iosdeveloperpanc/PCGestureUnlock)
 TTTAttributedLabel | 2.0.0 | 富文本标签 | [https://github.com/TTTAttributedLabel/TTTAttributedLabel](https://github.com/TTTAttributedLabel/TTTAttributedLabel)
+JZNavigationExtension | - | 自定义导航栏扩展类 | [https://github.com/JazysYu/JZNavigationExtension](https://github.com/JazysYu/JZNavigationExtension)
 UIAlertControllerBlocks | 0.9.2 | 回调提示框 | [https://github.com/ryanmaxwell/UIAlertController-Blocks](https://github.com/ryanmaxwell/UIAlertController-Blocks)
+JDStatusBarNotification | - | 状态栏通知 | [https://github.com/calimarkus/JDStatusBarNotification](https://github.com/calimarkus/JDStatusBarNotification)
 YALSunnyRefreshControll | 1.0.0 | 刷新动画 | [https://github.com/Yalantis/Pull-to-Refresh.Rentals-iOS](https://github.com/Yalantis/Pull-to-Refresh.Rentals-iOS)****
