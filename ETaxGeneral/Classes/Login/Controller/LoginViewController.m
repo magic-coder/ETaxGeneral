@@ -45,6 +45,7 @@ typedef NS_ENUM(NSInteger, LoginShowType) {
 
 @property (nonatomic,strong) UIButton *sendBtn;
 @property (nonatomic,strong) UIButton *loginBtn;
+@property (nonatomic,strong) UIButton *registerBtn;
 @property (nonatomic,strong) UIButton *cancelBtn;
 
 @property (nonatomic,assign) BOOL isMove;  // 是否移动
@@ -179,6 +180,10 @@ typedef NS_ENUM(NSInteger, LoginShowType) {
     self.loginBtn.layer.cornerRadius = 5;
     [self.loginBtn addTarget:self action:@selector(loginAction:) forControlEvents:UIControlEventTouchUpInside];
     [_smallView.contentView addSubview:self.loginBtn];
+    
+    // 添加注册按钮
+    
+    
     
     // 自定义左上角(返回按钮)
     self.cancelBtn = [UIButton buttonWithType:UIButtonTypeCustom];
