@@ -82,39 +82,39 @@ typedef NS_ENUM(NSInteger, LoginShowType) {
     _imgLeftHand.image = [UIImage imageNamed:@"login_arm_left"];
     [imgLogin addSubview:_imgLeftHand];
     
-    _imgRightHand = [[UIImageView alloc] initWithFrame:CGRectMake(imgLogin.frame.size.width / 2 + 60, 90, 40, 65)];
+    _imgRightHand = [[UIImageView alloc] initWithFrame:CGRectMake(imgLogin.frameWidth / 2 + 60, 90, 40, 65)];
     _imgRightHand.image = [UIImage imageNamed:@"login_arm_right"];
     [imgLogin addSubview:_imgRightHand];
     
     // 展开的左手/右手
-    _imgLeftHandGone = [[UIImageView alloc] initWithFrame:CGRectMake(self.view.frame.size.width / 2 - 100, 150-22, 40, 40)];
+    _imgLeftHandGone = [[UIImageView alloc] initWithFrame:CGRectMake(self.view.frameWidth / 2 - 100, 150-22, 40, 40)];
     _imgLeftHandGone.image = [UIImage imageNamed:@"login_hand"];
     [self.view addSubview:_imgLeftHandGone];
     
     
-    _imgRightHandGone = [[UIImageView alloc] initWithFrame:CGRectMake(self.view.frame.size.width / 2 + 62,  150-22, 40, 40)];
+    _imgRightHandGone = [[UIImageView alloc] initWithFrame:CGRectMake(self.view.frameWidth / 2 + 62,  150-22, 40, 40)];
     _imgRightHandGone.image = [UIImage imageNamed:@"login_hand"];
     [self.view addSubview:_imgRightHandGone];
     
     _smallView = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleLight]];
     if(DEVICE_SCREEN_INCH_IPAD){
-        _smallView.size = CGSizeMake(self.view.frame.size.width/2, self.view.frame.size.width/2);
-        _smallView.center = CGPointMake(WIDTH_SCREEN/2, 150+_smallView.size.height/2);
+        _smallView.size = CGSizeMake(self.view.frameWidth/2, self.view.frameWidth/2);
+        _smallView.center = CGPointMake(WIDTH_SCREEN/2, 150+_smallView.frameHeight/2);
     }else{
-        _smallView.frame = CGRectMake(20, 150, self.view.frame.size.width-40, self.view.frame.size.width-40);
+        _smallView.frame = CGRectMake(20, 150, self.view.frameWidth-40, self.view.frameWidth-40);
     }
     _smallView.layer.cornerRadius = 5;
     _smallView.layer.masksToBounds = YES;
     [self.view addSubview:_smallView];
     
-    self.titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, 15, _smallView.frame.size.width-20, 20)];
+    self.titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, 15, _smallView.frameWidth-20, 20)];
     self.titleLabel.text = @"用户登录";
     self.titleLabel.textColor = [UIColor whiteColor];
     self.titleLabel.textAlignment = NSTextAlignmentCenter;
     self.titleLabel.font = [UIFont systemFontOfSize:18.0f];
     [_smallView.contentView addSubview:self.titleLabel];
     
-    self.usernameTextField = [[UITextField alloc]initWithFrame:CGRectMake(20, CGRectGetMaxY(self.titleLabel.frame)+15, _smallView.frame.size.width-40, 40)];
+    self.usernameTextField = [[UITextField alloc]initWithFrame:CGRectMake(20, CGRectGetMaxY(self.titleLabel.frame)+15, _smallView.frameWidth-40, 40)];
     self.usernameTextField.delegate = self;
     self.usernameTextField.layer.cornerRadius = 5;
     self.usernameTextField.layer.borderWidth = .5;
@@ -182,7 +182,15 @@ typedef NS_ENUM(NSInteger, LoginShowType) {
     [_smallView.contentView addSubview:self.loginBtn];
     
     // 添加注册按钮
-    
+    self.registerBtn = [[UIButton alloc]initWithFrame:CGRectMake(20, CGRectGetMaxY(self.loginBtn.frame)+10, _smallView.frameWidth-40, 40)];
+    [self.registerBtn setTitle:@"注 册" forState:UIControlStateNormal];
+    [self.registerBtn setTitleColor:HexColor(@"#969696", 1.0f) forState:UIControlStateNormal];
+    [self.registerBtn setBackgroundImage:[UIImage imageWithColor:RgbColor(255.0, 255.0, 255.0, 1.0f)] forState:UIControlStateNormal];
+    [self.registerBtn setBackgroundImage:[UIImage imageWithColor:RgbColor(235.0, 235.0, 235.0, 1.0f)] forState:UIControlStateHighlighted];
+    self.registerBtn.layer.masksToBounds = YES;
+    self.registerBtn.layer.cornerRadius = 5;
+    [self.registerBtn addTarget:self action:@selector(loginAction:) forControlEvents:UIControlEventTouchUpInside];
+    [_smallView.contentView addSubview:self.registerBtn];
     
     
     // 自定义左上角(返回按钮)
@@ -194,10 +202,10 @@ typedef NS_ENUM(NSInteger, LoginShowType) {
     [self.view addSubview:self.cancelBtn];
     
     if(DEVICE_SCREEN_INCH_IPAD){
-        _smallView.size = CGSizeMake(WIDTH_SCREEN/2, CGRectGetMaxY(self.loginBtn.frame)+15);
-        _smallView.center = CGPointMake(WIDTH_SCREEN/2, 150+_smallView.size.height/2);
+        _smallView.size = CGSizeMake(WIDTH_SCREEN/2, CGRectGetMaxY(self.registerBtn.frame)+15);
+        _smallView.center = CGPointMake(WIDTH_SCREEN/2, 150+_smallView.frameHeight/2);
     }else{
-        _smallView.frame = CGRectMake(20, 150, self.view.frameWidth-40, CGRectGetMaxY(self.loginBtn.frame)+15);
+        _smallView.frame = CGRectMake(20, 150, self.view.frameWidth-40, CGRectGetMaxY(self.registerBtn.frame)+15);
     }
     
 }
