@@ -361,6 +361,11 @@ typedef NS_ENUM(NSInteger, LoginShowType) {
     [self.view endEditing:YES];
 }
 
+
+- (void)registerAction:(UIButton *)sender{
+    
+}
+
 #pragma mark - 取消方法
 - (void)cancelAction:(UIButton *)sender{
     MainTabBarController *mainTabBarController = [MainTabBarController sharedMainTabBarController];
