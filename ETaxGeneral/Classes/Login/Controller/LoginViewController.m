@@ -361,9 +361,9 @@ typedef NS_ENUM(NSInteger, LoginShowType) {
     [self.view endEditing:YES];
 }
 
-
+#pragma mark - 添加注册方法
 - (void)registerAction:(UIButton *)sender{
-    
+    DLog(@"点击了注册按钮...");
 }
 
 #pragma mark - 取消方法
