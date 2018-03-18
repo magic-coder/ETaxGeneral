@@ -189,7 +189,7 @@ typedef NS_ENUM(NSInteger, LoginShowType) {
     [self.registerBtn setBackgroundImage:[UIImage imageWithColor:RgbColor(235.0, 235.0, 235.0, 1.0f)] forState:UIControlStateHighlighted];
     self.registerBtn.layer.masksToBounds = YES;
     self.registerBtn.layer.cornerRadius = 5;
-    [self.registerBtn addTarget:self action:@selector(loginAction:) forControlEvents:UIControlEventTouchUpInside];
+    [self.registerBtn addTarget:self action:@selector(registerAction:) forControlEvents:UIControlEventTouchUpInside];
     [_smallView.contentView addSubview:self.registerBtn];
     
     
