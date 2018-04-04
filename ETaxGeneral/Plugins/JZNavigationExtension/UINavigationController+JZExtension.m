@@ -55,8 +55,16 @@ __attribute__((constructor)) static void JZ_Inject(void) {
 }
 
 - (void)jz_viewDidLoad {
-    NSAssert(!self.delegate, @"Set delegate should be invoked when viewDidLoad");
-    self.delegate = nil;
+    // 源代码调用相机会Crash闪退、报错
+    /*
+     NSAssert(!self.delegate, @"Set delegate should be invoked when viewDidLoad");
+     self.delegate = nil;
+     [self.interactivePopGestureRecognizer setValue:@NO forKey:@"canPanVertically"];
+     self.interactivePopGestureRecognizer.delegate = self.jz_navigationDelegate;
+     [self jz_viewDidLoad];
+     */
+    // 修改如下 Yanzheng 2018-04-02
+    self.delegate = self.delegate;
     [self.interactivePopGestureRecognizer setValue:@NO forKey:@"canPanVertically"];
     self.interactivePopGestureRecognizer.delegate = self.jz_navigationDelegate;
     [self jz_viewDidLoad];
