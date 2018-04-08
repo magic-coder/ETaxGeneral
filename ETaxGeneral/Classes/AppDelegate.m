@@ -20,6 +20,9 @@
 
 #import <AudioToolbox/AudioToolbox.h>
 
+#import <AVFoundation/AVFoundation.h>
+#import <Photos/Photos.h>
+
 #import "AuthHelper.h"
 
 @interface AppDelegate () <UNUserNotificationCenterDelegate, SangforSDKDelegate>
@@ -83,6 +86,7 @@
     [self initializeBaiduMap];      // 百度地图 BMKMapManager 初始化
     [self verifyUnlock];            // 判断是否设置安全密码
     [self monitoringScreenShot];    // 监测截屏操作
+    //[self cameraAndPhotoStatus];    // 设置权限
     
 #endif
     
@@ -442,7 +446,7 @@
             // 隐藏顶部状态栏设为NO
             [UIApplication sharedApplication].statusBarHidden = NO;
             // 节日动画下落效果（下雪、红包、福袋...）
-            [[BaseHandleUtil sharedBaseHandleUtil] snowAnimation];
+            // [[BaseHandleUtil sharedBaseHandleUtil] snowAnimation];
             // 获取未读消息条数
             [[MsgUtil sharedMsgUtil] msgUnReadCountSuccess:^(int unReadCount) {
                 [Variable sharedVariable].unReadCount = unReadCount;
@@ -578,4 +582,32 @@
     [self.helper loginVpn:authType];
 }
 
+#pragma mark - 开始获取相册、相机权限
+/*
+- (void)cameraAndPhotoStatus{
+    //相机权限
+    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    if (authStatus ==AVAuthorizationStatusRestricted ||//此应用程序没有被授权访问的照片数据。可能是家长控制权限
+        authStatus ==AVAuthorizationStatusDenied)  //用户已经明确否认了这一照片数据的应用程序访问
+    {
+        // 无权限 引导去开启
+        NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+        if ([[UIApplication sharedApplication]canOpenURL:url]) {
+            [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+        }
+    }
+    
+    // 相册权限
+    PHAuthorizationStatus author = [PHPhotoLibrary authorizationStatus];
+    if (author ==PHAuthorizationStatusRestricted || author ==PHAuthorizationStatusDenied){
+        //无权限 引导去开启
+        NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+        if ([[UIApplication sharedApplication] canOpenURL:url]) {
+            [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+        }
+    }
+    
+}
+*/
+ 
 @end
