@@ -219,6 +219,7 @@ static NSString * const reuseIdentifier = @"newsTableViewCell";
 - (void)cycleScrollViewDidSelectedImage:(YZCycleScrollView *)cycleScrollView index:(int)index {
     BaseWebViewController *webVC = [[BaseWebViewController alloc] initWithURL:cycleScrollView.urls[index]];
     webVC.title = cycleScrollView.titles[index];
+    webVC.jz_navigationBarBackgroundAlpha = 1.0f;
     [self.navigationController pushViewController:webVC animated:YES];
 }
 
