@@ -206,8 +206,7 @@
     }
     
     if(5 == btn.tag){
-        LoginViewController *loginVC = [[LoginViewController alloc] init];
-        [self presentViewController:loginVC animated:YES completion:nil];
+        SHOW_LOGIN_VIEW
     }
     
     if(6 == btn.tag){
