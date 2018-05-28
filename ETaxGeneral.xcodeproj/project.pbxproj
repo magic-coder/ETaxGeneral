@@ -1929,13 +1929,13 @@
 		18DB52871FFC7966008ACE78 /* JDStatusBarNotification */ = {
 			isa = PBXGroup;
 			children = (
+				18DB528C1FFC7966008ACE78 /* JDStatusBarNotification.h */,
 				18DB52881FFC7966008ACE78 /* JDStatusBarNotification.m */,
 				18DB52891FFC7966008ACE78 /* JDStatusBarStyle.h */,
+				18DB528E1FFC7966008ACE78 /* JDStatusBarStyle.m */,
+				18DB528D1FFC7966008ACE78 /* JDStatusBarView.h */,
 				18DB528A1FFC7966008ACE78 /* JDStatusBarView.m */,
 				18DB528B1FFC7966008ACE78 /* JDStatusBarLayoutMarginHelper.m */,
-				18DB528C1FFC7966008ACE78 /* JDStatusBarNotification.h */,
-				18DB528D1FFC7966008ACE78 /* JDStatusBarView.h */,
-				18DB528E1FFC7966008ACE78 /* JDStatusBarStyle.m */,
 				18DB528F1FFC7966008ACE78 /* JDStatusBarLayoutMarginHelper.h */,
 			);
 			path = JDStatusBarNotification;
@@ -2585,7 +2585,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/ETaxGeneral/Supporting Files/PrefixHeader.pch";
 				INFOPLIST_FILE = "$(SRCROOT)/ETaxGeneral/Supporting Files/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2614,7 +2614,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/ETaxGeneral/Supporting Files/PrefixHeader.pch";
 				INFOPLIST_FILE = "$(SRCROOT)/ETaxGeneral/Supporting Files/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
