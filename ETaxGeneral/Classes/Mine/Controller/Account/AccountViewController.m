@@ -40,8 +40,15 @@
         [YZBottomSelectView showBottomSelectViewWithTitle:@"退出登录后下次使用时需重新登录，您确定要退出吗？" cancelButtonTitle:@"取消" destructiveButtonTitle:@"退出" otherButtonTitles:nil handler:^(YZBottomSelectView *bootomSelectView, NSInteger index) {
             
             if(-1 == index){
-                [[LoginUtil sharedLoginUtil] logout];
-                [self.navigationController popViewControllerAnimated:YES];
+                [MBProgressHUD showHUDView:self.view text:@"正在注销..." progressHUDMode:(YZProgressHUDModeLock)];
+                [[LoginUtil sharedLoginUtil] logout:^(NSString *msg) {
+                    [MBProgressHUD hiddenHUDView:self.view];
+                    [MBProgressHUD showHUDView:App_Window text:msg progressHUDMode:YZProgressHUDModeShow];
+                    [self.navigationController popViewControllerAnimated:YES];
+                } failure:^(NSString *error) {
+                    [MBProgressHUD hiddenHUDView:self.view];
+                    [MBProgressHUD showHUDView:App_Window text:error progressHUDMode:YZProgressHUDModeShow];
+                }];
             }
             
         }];
