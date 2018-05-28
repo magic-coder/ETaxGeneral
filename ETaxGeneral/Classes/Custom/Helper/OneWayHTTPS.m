@@ -36,10 +36,11 @@
         // 不加上这句话，会报“Request failed: unacceptable content-type: text/plain”错误，因为我们要获取text/plain类型数据
         _manager.responseSerializer = [AFHTTPResponseSerializer serializer];
         // 如果报接受类型不一致请替换一致text/html  或者 text/plain
-        _manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript", @"text/html", @"text/plain", nil];
+        _manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript", @"text/html", @"text/plain", @"image/png", nil];
         // 设置请求头类型
-        _manager.requestSerializer = [AFHTTPRequestSerializer serializer];
+        _manager.requestSerializer = [AFJSONRequestSerializer serializer];
         [_manager.requestSerializer setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+
         
         // 请求超时，时间设置
         _manager.requestSerializer.timeoutInterval = 20.0;
@@ -102,11 +103,13 @@
      failure:(void (^)(NSURLSessionDataTask *, NSString *))failure {
     
     [[[self class] sessionManager] POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSString *result = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
-        DLog(@"POST 请求结果：%@", result);
-        NSDictionary *resultDict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:nil];
-        
-        success(task, resultDict);
+        id result;
+        if ([task.response.MIMEType isEqualToString:@"image/png"]) {
+            result = [UIImage imageWithData:responseObject];
+        } else {
+            result = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:nil];
+        }
+        success(task, result);
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         failure(task, [self stringWithError:error]);
     }];

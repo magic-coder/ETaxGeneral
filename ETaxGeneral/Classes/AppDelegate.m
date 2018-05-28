@@ -10,6 +10,7 @@
 
 #import "AppDelegate.h"
 #import "MainTabBarController.h"
+#import "MainNavigationController.h"
 #import "GestureViewController.h"
 #import "MsgListViewController.h"
 #import "MsgUtil.h"
@@ -249,7 +250,7 @@
     NSDictionary *userInfo = notification.request.content.userInfo;
     
     if([userInfo[@"sourceCode"] isEqualToString:@"99"] && IS_LOGIN){    // 下线通知
-        [[LoginUtil sharedLoginUtil] logout];
+        [[LoginUtil sharedLoginUtil] clearLocalInfo];
         
         FCAlertView *alert = [[FCAlertView alloc] init];
         [alert showAlertWithTitle:@"安全提醒"
@@ -265,7 +266,7 @@
         if(vcCount > 1){
             [vc.navigationController popToRootViewControllerAnimated:NO];// pop掉全部的视图控制器
         }else{
-            [vc presentViewController:[[NSClassFromString(@"LoginViewController") class] new] animated:YES completion:nil];// 跳转到登录界面
+            [vc presentViewController:[[MainNavigationController alloc] initWithRootViewController:[[NSClassFromString(@"LoginViewController") class] new]] animated:YES completion:nil];// 跳转到登录界面
         }
     }
     
@@ -303,7 +304,7 @@
     
     if([userInfo[@"sourceCode"] isEqualToString:@"99"] && IS_LOGIN){    // 下线通知
         _rootVC.selectedIndex = 3;
-        [[LoginUtil sharedLoginUtil] logout];
+        [[LoginUtil sharedLoginUtil] clearLocalInfo];
         
         FCAlertView *alert = [[FCAlertView alloc] init];
         [alert showAlertWithTitle:@"安全提醒"
@@ -314,7 +315,7 @@
         [alert makeAlertTypeCaution];
         
         UIViewController *vc = [[BaseHandleUtil sharedBaseHandleUtil] topViewController];
-        [vc presentViewController:[[NSClassFromString(@"LoginViewController") class] new] animated:YES completion:nil];// 跳转到登录界面
+        [vc presentViewController:[[MainNavigationController alloc] initWithRootViewController:[[NSClassFromString(@"LoginViewController") class] new]] animated:YES completion:nil];// 跳转到登录界面
     }
     
     if([userInfo[@"sourceCode"] isEqualToString:@"01"]){    // 用户推送

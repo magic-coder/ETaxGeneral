@@ -13,25 +13,21 @@
 
 @implementation YZNetworkingManager
 
-+ (void)POST:(NSString *)URLString parameters:(id)parameters
++ (void)POST:(NSString *)URLString
+  parameters:(id)parameters
      success:(void (^)(id))success
      failure:(void (^)(NSString *))failure
      invalid:(void (^)(NSString *))invalid {
     
     // 格式化请求 URL 参数
     NSString *url = [NSString stringWithFormat:@"%@%@", SERVER_URL, URLString];
-    NSDictionary *param = nil;
-    if(parameters){
-        param = [NSDictionary dictionaryWithObjectsAndKeys:[[BaseHandleUtil sharedBaseHandleUtil] JSONStringWithObject:parameters], @"msg", nil];   // 格式化参数
-    }
-    
-    [OneWayHTTPS POST:url parameters:param success:^(NSURLSessionDataTask *task, id responseObject) {
+    [OneWayHTTPS POST:url parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
         if([@"00" isEqualToString:[responseObject objectForKey:@"statusCode"]]){    // 成功标志
             success(responseObject);
         }else{
             [[LoginUtil sharedLoginUtil] loginWithTokenSuccess:^{
                 // token 登录成功，重新开始业务请求
-                [OneWayHTTPS POST:url parameters:param success:^(NSURLSessionDataTask *task, id responseObject) {
+                [OneWayHTTPS POST:url parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
                     if([@"00" isEqualToString:[responseObject objectForKey:@"statusCode"]]){    // 成功标志
                         success(responseObject);
                     }else if([@"500" isEqualToString:[responseObject objectForKey:@"statusCode"]]){ // 用户未登录

@@ -7,7 +7,7 @@
  Version  : 1.0
  Declare  : Copyright © 2017 Yanzheng. All rights reserved.
  ************************************************************/
-
+#import "MainNavigationController.h"
 #ifndef Codeing_h
 #define Codeing_h
 
@@ -23,7 +23,7 @@
 #define BUNDLE_IDENTIFIER       [[NSBundle mainBundle] bundleIdentifier]
 #define PLACEHOLDER_IMAGE       [UIImage imageNamed:@"common_placeholder"]
 #define IS_LOGIN                (nil != [[NSUserDefaults standardUserDefaults] objectForKey:LOGIN_SUCCESS])
-#define SHOW_LOGIN_VIEW         [self presentViewController:[[NSClassFromString(@"LoginViewController") class] new] animated:YES completion:nil];
+#define SHOW_LOGIN_VIEW         [self presentViewController:[[MainNavigationController alloc] initWithRootViewController:[[NSClassFromString(@"LoginViewController") class] new]] animated:YES completion:nil];
 #define SHOW_RELOGIN_VIEW \
 \
 FCAlertView *alert = [[FCAlertView alloc] init]; \
@@ -34,7 +34,7 @@ FCAlertView *alert = [[FCAlertView alloc] init]; \
                andButtons:nil]; \
 alert.colorScheme = alert.flatRed; \
 [alert doneActionBlock:^{ \
-    [[LoginUtil sharedLoginUtil] logout]; \
+    [[LoginUtil sharedLoginUtil] clearLocalInfo]; \
     SHOW_LOGIN_VIEW \
 }]; \
 

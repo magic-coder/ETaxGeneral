@@ -29,6 +29,8 @@
 
 #define IS_ON_IPHONE (UI_USER_INTERFACE_IDIOM == UIUserInterfaceIdiomPhone)
 #define IS_ON_IPAD (UI_USER_INTERFACE_IDIOM == UIUserInterfaceIdiomPad)
+#define App_Window [[UIApplication sharedApplication].delegate window]
+
 
 #pragma mark - 常用方法宏定义
 #define RgbColor(r, g, b, a)    [UIColor colorWithRed:(r)/255.0f green:(g)/255.0f blue:(b)/255.0f alpha:a]
@@ -46,7 +48,7 @@
 #pragma mark - 设置服务器地址Service Url
 //#define SERVER_URL  @"https://192.168.14.235:8444/mobiletax/"   // 测试 https 服务器地址（外网测试）
 //#define SERVER_URL  @"https://10.100.9.130:8443/mobiletax/"     // 测试 https 服务器地址（VPN测试）
-#define SERVER_URL  @"https://10.100.16.133:8443/mobiletax/"    // 生产 https VPN 服务器地址
+#define SERVER_URL  @"https://10.100.9.130:8443/est_outportal/"    // 生产 https VPN 服务器地址
 
 #pragma mark - 定义全局常用key值
 #define DEVICE_INFO         @"deviceInfo"

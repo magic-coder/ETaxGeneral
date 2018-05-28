@@ -92,11 +92,11 @@ static char overlayKey;
         CGFloat alpha = scrollView.contentOffset.y /90 >1.0f ? 1:scrollView.contentOffset.y/90;
         //设置一个颜色并转化为图片
         UIImage *image = [UIImage imageWithColor:[color colorWithAlphaComponent:alpha]];
-        if(alpha == 1){
-            self.translucent = NO;
-        }else{
-            self.translucent = YES;
-        }
+//        if(alpha == 1){
+//            self.translucent = NO;
+//        }else{
+//            self.translucent = YES;
+//        }
         [self setBackgroundImage:image forBarMetrics:UIBarMetricsDefault];
     }
 }
