@@ -20,8 +20,7 @@ SingletonM(NewsUtil)
                      invalid:(void (^)(NSString *))invalid {
     
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-    [dict setObject:[NSNumber numberWithInt:pageSize] forKey:@"pageSize"];
-    [dict setObject:[[[NSUserDefaults standardUserDefaults] objectForKey:LOGIN_SUCCESS] objectForKey:@"orgCode"] forKey:@"orgCode"];
+    [dict setValue:[NSNumber numberWithInt:pageSize] forKey:@"pageSize"];
     
     [YZNetworkingManager POST:@"public/photonews/index" parameters:dict success:^(id responseObject) {
         NSDictionary *businessData = [responseObject objectForKey:@"businessData"];

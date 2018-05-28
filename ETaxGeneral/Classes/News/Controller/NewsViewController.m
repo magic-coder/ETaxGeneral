@@ -54,8 +54,7 @@ static NSString * const reuseIdentifier = @"newsTableViewCell";
     //self.jz_navigationBarBackgroundAlpha = 0.0f;
     
     // 导航栏平滑过渡，延展视图包含部包含不透明的NavigationBar
-    self.extendedLayoutIncludesOpaqueBars = YES;
-    self.automaticallyAdjustsScrollViewInsets = NO;
+//    self.extendedLayoutIncludesOpaqueBars = YES;
     
     [self navigationInitialize];
     
@@ -65,6 +64,7 @@ static NSString * const reuseIdentifier = @"newsTableViewCell";
     [self initializeSlideMenu];// 初始化左侧滑动菜单
     
     [self autoLayout];
+
 }
 
 - (void)didReceiveMemoryWarning {
@@ -85,9 +85,9 @@ static NSString * const reuseIdentifier = @"newsTableViewCell";
     [super viewWillAppear:animated];
     
     [self.navigationController.navigationBar yz_initialize];
-    
+
     [self scrollViewDidScroll:self.tableView];
-    //[self.navigationController.navigationBar setShadowImage:[UIImage new]];
+    [self.navigationController.navigationBar setShadowImage:[UIImage new]];
     
     // 判断是否登录
     if(IS_LOGIN){
@@ -139,16 +139,16 @@ static NSString * const reuseIdentifier = @"newsTableViewCell";
         _data = [[NSMutableArray alloc] init];
         
         // 顶部轮播焦点图数据
-        /*
+        
         NSDictionary *loopDict = [dataDict objectForKey:@"loopResult"];
         NSArray *titles = [loopDict objectForKey:@"titles"];
         NSArray *images = [loopDict objectForKey:@"images"];
         NSArray *urls = [loopDict objectForKey:@"urls"];
-        */
         
-        NSArray *titles = @[@"腾讯马化腾，谈2018区块链对科技的影响", @"阿里巴巴技术这么年所产生的影响力", @"Github遭遇史上最强DDos攻击，持续14分钟"];
-        NSArray *images = @[@"cycle_1", @"cycle_2", @"cycle_3"];
-        NSArray *urls = @[@"https://www.qq.com", @"https://www.alibaba.com", @"https://www.github.com"];
+        
+//        NSArray *titles = @[@"腾讯马化腾，谈2018区块链对科技的影响", @"阿里巴巴技术这么年所产生的影响力", @"Github遭遇史上最强DDos攻击，持续14分钟"];
+//        NSArray *images = @[@"cycle_1", @"cycle_2", @"cycle_3"];
+//        NSArray *urls = @[@"https://www.qq.com", @"https://www.alibaba.com", @"https://www.github.com"];
         
         _cycleScrollView = [[YZCycleScrollView alloc] initWithFrame:CGRectMake(0, 0, WIDTH_SCREEN, floorf((CGFloat)WIDTH_SCREEN/1.8)) titles:titles images:images urls:urls autoPlay:YES delay:2.7f];
         _cycleScrollView.delegate = self;
@@ -161,11 +161,12 @@ static NSString * const reuseIdentifier = @"newsTableViewCell";
             [_data addObject:model];
         }
         
+        [self.tableView.tg_header endRefreshing];   // 结束头部刷新动画
+
         _totalPage = [[dataDict objectForKey:@"totalPage"] intValue];
-        if(_totalPage > 1)
+        if(_totalPage > 1 && !self.tableView.mj_footer)
             self.tableView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];    // 设置上拉加载
         
-        [self.tableView.tg_header endRefreshing];   // 结束头部刷新动画
         
         [self.tableView reloadData];    // 重新加载数据
         
