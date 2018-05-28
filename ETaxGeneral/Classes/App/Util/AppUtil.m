@@ -10,6 +10,7 @@
 
 #import "AppUtil.h"
 #import "AppModel.h"
+#import "AFNetworking.h"
 
 @implementation AppUtil
 
@@ -51,8 +52,7 @@ SingletonM(AppUtil)
             if(level == 0){ // 只获取第一个级别的 level = 0 的数据
                 if(type == 1){  // 值为1是我的应用
                     [mineData addObject:dict];
-                }
-                if(type == 2 || type == 3){  // 值为2、3是其他应用
+                } else {    // 值为2、3是其他应用
                     [otherData addObject:dict];
                 }
                 [allData addObject:dict];
@@ -65,14 +65,14 @@ SingletonM(AppUtil)
         // 对我的应用进行排序
         [self sortWithArray:mineData key:@"userappsort" ascending:YES];
         
-        // 对其他应用进行排序
-        [self sortWithArray:otherData key:@"userappsort" ascending:YES];
+        // 对其他应用进行分组排序
+        NSMutableArray *allGroupData = [self groupWithArray:allData];
         
         // 对子应用进行排序
         [self sortWithArray:subData key:@"appsort" ascending:YES];
         
         // 最终数据（写入SandBox的数据）[第一级主应用]
-        NSMutableDictionary *dataDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:mineData, @"mineData", otherData, @"otherData", allData, @"allData", nil];
+        NSMutableDictionary *dataDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:mineData, @"mineData", otherData, @"otherData", allGroupData, @"allGroupData", allData, @"allData", nil];
         [self writeAppData:dataDict];
         
         // 最终数据（写入SandBox的数据）[子类应用]
@@ -89,6 +89,46 @@ SingletonM(AppUtil)
     } invalid:^(NSString *msg) {
         invalid(msg);
     }];
+    
+}
+
+// 对数据进行分组排序
+- (NSMutableArray *)groupWithArray:(NSArray *)array {
+    NSMutableArray *newArray = [NSMutableArray array];
+    for(NSDictionary *appDict in array){
+        NSString * groupName = [appDict objectForKey:@"grouptypename"];
+        if (!groupName) {
+            groupName = @"更多应用";
+        }
+        NSMutableDictionary *groupDict = [self searchGroupWithName:groupName groupArray:newArray];
+        if (!groupDict) {
+            groupDict = [NSMutableDictionary dictionary];
+            [groupDict setValue:groupName forKey:@"groupName"];
+            [groupDict setValue:appDict[@"grouptypesort"] forKey:@"groupSort"];
+            [groupDict setValue:appDict[@"grouptypecode"] forKey:@"groupCode"];
+            [groupDict setValue:[NSMutableArray array] forKey:@"appArray"];
+            [newArray addObject:groupDict];
+        }
+        NSMutableArray *appArray = [groupDict objectForKey:@"appArray"];
+        [appArray addObject:appDict];
+    }
+    // 分组排序
+    [self sortWithArray:newArray key:@"groupSort" ascending:YES];
+    // 组内排序
+    for (NSDictionary *groupDict in newArray) {
+        NSMutableArray *appArray = [groupDict objectForKey:@"appArray"];
+        [self sortWithArray:appArray key:@"appsort" ascending:YES];
+    }
+    return newArray;
+}
+
+- (NSMutableDictionary *)searchGroupWithName:(NSString *)groupName groupArray:(NSMutableArray *)groupArray {
+    for (NSMutableDictionary *dict in groupArray) {
+        if ([dict[@"groupName"] isEqualToString:groupName]) {
+            return dict;
+        }
+    }
+    return nil;
     
 }
 
@@ -121,8 +161,11 @@ SingletonM(AppUtil)
 }
 
 // 向服务器保存自定义app排序
-- (void)saveCustomData:(NSArray *)customData{
-    
+- (void)saveCustomData:(NSArray *)customData
+               success:(void (^)(id responseObject))success
+               failure:(void (^)(NSString *error))failure
+               invalid:(void (^)(NSString *msg))invalid
+{
     NSMutableArray *paramsArray = [[NSMutableArray alloc] init];
     
     int appsort = 0;
@@ -136,29 +179,22 @@ SingletonM(AppUtil)
         [paramsArray addObject:paramDict];
     }
     
-    [YZNetworkingManager POST:@"app/saveCustomAppSort" parameters:paramsArray success:^(id responseObject) {
+    NSDictionary *param = @{@"msg":paramsArray};//格式化参数
+    [YZNetworkingManager POST:@"app/saveCustomAppSort" parameters:param success:^(id responseObject) {
         DLog(@"保存成功！");
+        success(responseObject);
     } failure:^(NSString *error) {
         DLog(@"同步保存数据失败...");
+        failure(error);
     } invalid:^(NSString *msg) {
         DLog(@"同步保存数据失败...");
+        invalid(msg);
     }];
+    
 }
 
 // 写入应用数据到本地SandBox中
 - (BOOL)writeAppData:(NSDictionary *)appData{
-    
-    NSMutableArray *customData = [[NSMutableArray alloc] init];
-    
-    for(NSDictionary *mineDict in [appData objectForKey:@"mineData"]){
-        [customData addObject:mineDict];
-    }
-    for(NSDictionary *otherDict in [appData objectForKey:@"otherData"]){
-        [customData addObject:otherDict];
-    }
-    
-    [self saveCustomData:customData];
-    
     return [[BaseSandBoxUtil sharedBaseSandBoxUtil] writeData:appData fileName:APP_FILE];
 }
 
