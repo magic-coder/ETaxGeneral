@@ -46,12 +46,13 @@ typedef NS_ENUM(NSInteger, AppViewType) {
 @property (nonatomic, assign) float mineAppViewHeight;
 @property (nonatomic, assign) float otherAppViewHeight;
 @property (nonatomic, assign) BOOL adjustStatus;                    // 是否进行了重新排序操作
+@property (nonatomic, assign, getter=isReload) BOOL reload;         // 是否从新加载数据
 
 @property (nonatomic, strong) NSMutableArray *mineDataArray;        // 我的应用数据
 @property (nonatomic, strong) NSMutableArray *mineBorderViewArray;  // 我的应用底层虚线视图
 @property (nonatomic, strong) NSMutableArray *mineAppViewArray;     // 我是应用视图
 
-@property (nonatomic, strong) NSMutableArray *otherDataArray;        // 其他/更多应用数据
+@property (nonatomic, strong) NSMutableArray *allDataArray;        // 其他/更多应用数据
 
 @end
 
@@ -82,6 +83,7 @@ typedef NS_ENUM(NSInteger, AppViewType) {
     
     // 初始化最新数据
     if(IS_LOGIN){
+        [[BaseSandBoxUtil sharedBaseSandBoxUtil] removeFileName:APP_FILE];
         [[AppUtil sharedAppUtil] initAppDataSuccess:^(NSMutableDictionary *dataDict) {
             [self initAppData:dataDict];
         } failure:^(NSString *error) {
@@ -102,9 +104,9 @@ typedef NS_ENUM(NSInteger, AppViewType) {
     
     [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;// 设置顶部状态栏字体为白色
     
-    _adjustStatus = NO;
-    
     if(IS_LOGIN){
+        if(self.isReload)
+            [[BaseSandBoxUtil sharedBaseSandBoxUtil] removeFileName:APP_FILE];
         // 获取应用数据
         NSDictionary *appData = [[AppUtil sharedAppUtil] loadAppData];
         if(appData){
@@ -131,6 +133,7 @@ typedef NS_ENUM(NSInteger, AppViewType) {
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
+    self.reload = NO;
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];// 设置导航栏itemBar字体颜色
     self.navigationController.navigationBar.titleTextAttributes = @{ NSForegroundColorAttributeName : [UIColor whiteColor] };// 设置导航栏title标题字体颜色
 }
@@ -150,18 +153,18 @@ typedef NS_ENUM(NSInteger, AppViewType) {
     // 重新构建应用前先移除以前的
     NSArray *subViews = [self.baseScrollView subviews];
     for(UIView *view in subViews){
-        if([view isKindOfClass:[AppBorderView class]] || [view isKindOfClass:[AppView class]]){
+        if (![view isEqual:self.mineHeaderView] && ![view isEqual:self.pullHiddenView]) {
             [view removeFromSuperview];
         }
     }
-
+    
     _mineDataArray = [NSMutableArray array];
     _mineDataArray = [data objectForKey:@"mineData"];
     
-    _otherDataArray = [NSMutableArray array];
-    _otherDataArray = [data objectForKey:@"otherData"];
+    _allDataArray = [NSMutableArray array];
+    _allDataArray = [data objectForKey:@"allGroupData"];
     [self initMineAppBorderView];
-    [self initAppViewData:_otherDataArray type:AppViewTypeOther];
+    [self initAppViewData:_allDataArray type:AppViewTypeOther];
     [self.baseScrollView setContentSize:CGSizeMake(WIDTH_SCREEN, _otherAppViewHeight + HEIGHT_STATUS + 15)];
 }
 
@@ -185,15 +188,15 @@ typedef NS_ENUM(NSInteger, AppViewType) {
 - (void)initAppViewData:(NSMutableArray *)array type:(AppViewType)type{
     if(AppViewTypeMine == type)
         _mineAppViewArray = [NSMutableArray array];
-
+    
     int viewWidth = ((WIDTH_SCREEN - 25) / 4);
+    UIView *lastGroupView;
     for (int i = 0; i < array.count; i++) {
-        AppModelItem *item = [AppModelItem createWithDictionary:array[i]];
-        AppView *appView = [[AppView alloc] init];
-        appView.delegate = self;
-        appView.item = item;
-        
         if(AppViewTypeMine == type){    // 我的应用
+            AppModelItem *item = [AppModelItem createWithDictionary:array[i]];
+            AppView *appView = [[AppView alloc] init];
+            appView.delegate = self;
+            appView.item = item;
             appView.tag = i;
             appView.frame = CGRectMake((i%4)*(viewWidth+5)+5, (i/4)*(viewWidth+5)+self.mineHeaderView.frameBottom, viewWidth, viewWidth);
             
@@ -210,14 +213,31 @@ typedef NS_ENUM(NSInteger, AppViewType) {
             [_mineAppViewArray addObject:appView];
         }
         if(AppViewTypeOther == type){   // 其他应用(更多应用)
-            [self.baseScrollView addSubview:self.otherHeaderView];// 添加分组头部视图
-            appView.frame = CGRectMake((i%4)*(viewWidth+5)+5,(i/4)*(viewWidth+5)+self.otherHeaderView.frameBottom,viewWidth,viewWidth);
+            NSDictionary *groupDic = array[i];
             
-            if(i == array.count - 1){
-                _otherAppViewHeight = appView.frameBottom;
-                [self.baseScrollView addSubview:self.otherFooterView];// 添加底部视图
+            AppHeaderView *groupHeaderView = [[AppHeaderView alloc] initWithFrame:CGRectMake(0, !lastGroupView ? self.mineFooterView.frameBottom : lastGroupView.frameBottom, WIDTH_SCREEN, 30.0f)];
+            groupHeaderView.title = groupDic[@"groupName"];
+            [self.baseScrollView addSubview:groupHeaderView];// 添加分组头部视图
+            
+            NSArray *otherAppDataArr = groupDic[@"appArray"];
+            for (int j = 0; j < otherAppDataArr.count; j++) {
+                AppModelItem *item = [AppModelItem createWithDictionary:otherAppDataArr[j]];
+                AppView *appView = [[AppView alloc] initWithFrame:CGRectMake((j%4)*(viewWidth+5)+5,(j/4)*(viewWidth+5)+groupHeaderView.frameBottom,viewWidth,viewWidth)];
+                appView.delegate = self;
+                appView.item = item;
+                [self.baseScrollView addSubview:appView];
+                if(j == otherAppDataArr.count - 1){
+                    if (i == array.count - 1) {
+                        _otherAppViewHeight = appView.frameBottom;
+                        [self.baseScrollView addSubview:self.otherFooterView];// 添加底部视图
+                    } else {
+                        UIView *footerLine = [[UIView alloc] initWithFrame:CGRectMake(0, appView.frameBottom, WIDTH_SCREEN, 1)];
+                        footerLine.backgroundColor = DEFAULT_BACKGROUND_COLOR;
+                        [self.baseScrollView addSubview:footerLine];// 添加底部视图
+                        lastGroupView = footerLine;
+                    }
+                }
             }
-            [self.baseScrollView addSubview:appView];
         }
     }
 }
@@ -390,6 +410,7 @@ typedef NS_ENUM(NSInteger, AppViewType) {
         viewController = [[NSClassFromString(@"AppSearchViewController") class] new];
     }
     if(sender.tag == 2){
+        self.reload = YES;
         viewController = [[NSClassFromString(@"AppEditViewController") class] new];
     }
     if(sender.tag == 21){   // 通知公告
@@ -437,7 +458,7 @@ typedef NS_ENUM(NSInteger, AppViewType) {
 #pragma mark - 自定义排序保存方法
 - (void)editMineAppDataSort{
     // 获取缓存中的最新数据
-    NSDictionary *appData = [[AppUtil sharedAppUtil] loadAppData];
+    NSMutableDictionary *appData = [[AppUtil sharedAppUtil] loadAppData];
     NSMutableArray *mineData = [[NSMutableArray alloc] init];
     
     // 我的应用数据
@@ -453,8 +474,16 @@ typedef NS_ENUM(NSInteger, AppViewType) {
         [mineData addObject:mineDict];
     }
     
-    NSMutableDictionary *dataDict = [[NSMutableDictionary alloc] initWithObjectsAndKeys:mineData, @"mineData", [appData objectForKey:@"otherData"], @"otherData", [appData objectForKey:@"allData"], @"allData", nil];
+    [appData setValue:mineData forKey:@"mineData"];
+    // 保存本地
+    [[AppUtil sharedAppUtil] writeAppData:appData];
     
-    [[AppUtil sharedAppUtil] writeAppData:dataDict];
+    [[AppUtil sharedAppUtil] saveCustomData:mineData success:^(id responseObject) {
+        _adjustStatus = NO; // 保存成功后记录
+    } failure:^(NSString *error) {
+        
+    } invalid:^(NSString *msg) {
+        
+    }];
 }
 @end

@@ -15,7 +15,9 @@
 #import "AppUtil.h"
 
 @interface AppEditViewController () <AppEditViewCellDelegate>
-
+{
+    NSMutableDictionary *_dataDict;
+}
 @property (nonatomic, strong) NSMutableArray *data;
 @property (nonatomic, strong) UICollectionViewFlowLayout *flowLayout;
 
@@ -57,7 +59,7 @@ static NSString * const reuseHeaderIdentifier = @"reuseHeaderIdentifier";
     self.navigationItem.rightBarButtonItem.enabled = NO;// 初始化保存按钮不可点击
     
     [self initializeData];
-
+    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -74,21 +76,24 @@ static NSString * const reuseHeaderIdentifier = @"reuseHeaderIdentifier";
     self.jz_navigationBarTintColor = [UIColor whiteColor];
 }
 
-
-- (void)viewWillDisappear:(BOOL)animated {
+- (void)viewWillDisappear:(BOOL)animated{
     [super viewWillDisappear:animated];
     
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;// 设置顶部状态栏字体颜色为白色
+    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];// 设置导航栏itemBar字体颜色
+    self.navigationController.navigationBar.titleTextAttributes = @{ NSForegroundColorAttributeName : [UIColor whiteColor] };// 设置导航栏title标题字体颜色
     self.jz_navigationBarTintColor = DEFAULT_BLUE_COLOR;
 }
 
 #pragma mark - 初始化加载数据
 - (void)initializeData {
-    NSMutableDictionary *appDict = [[AppUtil sharedAppUtil] loadAppData];
-    if(appDict){
-        [self handleData:appDict];
+    _dataDict = [[AppUtil sharedAppUtil] loadAppData];
+    if(_dataDict){
+        [self handleData:_dataDict];
     }else{
         [[AppUtil sharedAppUtil] initAppDataSuccess:^(NSMutableDictionary *dataDict) {
-            [self handleData:dataDict];
+            _dataDict = dataDict;
+            [self handleData:_dataDict];
         } failure:^(NSString *error) {
             [MBProgressHUD showHUDView:self.view text:error progressHUDMode:YZProgressHUDModeShow];
         } invalid:^(NSString *msg) {
@@ -100,29 +105,32 @@ static NSString * const reuseHeaderIdentifier = @"reuseHeaderIdentifier";
 #pragma mark - 处理数据
 - (void)handleData:(NSMutableDictionary *)data{
     NSArray *mineAppData = [data objectForKey:@"mineData"];
-    NSArray *otherAppData = [data objectForKey:@"allData"];
+    NSMutableArray *allGroupData = [data objectForKey:@"allGroupData"];
+    // 对其他应用进行分组排序
+    
+    _data = [NSMutableArray array];
     
     NSMutableArray *mineArray = [NSMutableArray array];
     for(NSDictionary *dict in mineAppData){
         AppModelItem *item = [AppModelItem createWithDictionary:dict];
         [mineArray addObject:item];
     }
-    NSMutableArray *otherArray = [NSMutableArray array];
-    for(NSDictionary *dict in otherAppData){
-        AppModelItem *item = [AppModelItem createWithDictionary:dict];
-        [otherArray addObject:item];
-    }
-    
     AppModelGroup *mineGroup = [[AppModelGroup alloc] init];
     mineGroup.items = mineArray;
     mineGroup.groupTitle = @"我的应用";
-    
-    AppModelGroup *otherGroup = [[AppModelGroup alloc] init];
-    otherGroup.items = otherArray;
-    otherGroup.groupTitle = @"全部应用";
-    _data = [NSMutableArray array];
     [_data addObject:mineGroup];
-    [_data addObject:otherGroup];
+    
+    for(NSDictionary *dict in allGroupData){
+        NSMutableArray *otherArray = [NSMutableArray array];
+        for (NSDictionary *appDic in dict[@"appArray"]) {
+            AppModelItem *item = [AppModelItem createWithDictionary:appDic];
+            [otherArray addObject:item];
+        }
+        AppModelGroup *otherGroup = [[AppModelGroup alloc] init];
+        otherGroup.items = otherArray;
+        otherGroup.groupTitle = dict[@"groupName"];
+        [_data addObject:otherGroup];
+    }
 }
 
 #pragma mark - <UICollectionViewDataSource> 数据源方法
@@ -152,14 +160,11 @@ static NSString * const reuseHeaderIdentifier = @"reuseHeaderIdentifier";
     }else{  // 剩下的为其他应用
         cell.editBtnStyle = AppCellEditBtnStyleAdd;
         AppModelGroup *groupMine = [self.data objectAtIndex:0];
-        AppModelGroup *groupAll = [self.data objectAtIndex:1];
         // 循环判断“全部应用”中哪些为“我的应用”，设置编辑按钮样式
-        [groupAll.items enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            AppModelItem *allItem = (AppModelItem *)obj;
-            for(AppModelItem *mineObj in groupMine.items){
-                if([mineObj.no isEqualToString:allItem.no] && indexPath.row == idx){
-                    cell.editBtnStyle = AppCellEditBtnStyleSelected;
-                }
+        [groupMine.items enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            AppModelItem *mineItem = (AppModelItem *)obj;
+            if([mineItem.no isEqualToString:item.no]){
+                cell.editBtnStyle = AppCellEditBtnStyleSelected;
             }
         }];
     }
@@ -214,43 +219,34 @@ static NSString * const reuseHeaderIdentifier = @"reuseHeaderIdentifier";
         if(mineGroup.itemsCount > 1){
             AppModelItem *delItem = [mineGroup.items objectAtIndex:indexpath.row];
             [mineGroup.items removeObject:delItem];
-            [self.collectionView reloadData];
         }else{
             [MBProgressHUD showHUDView:self.view text:@"已经是最后一个我的应用了" progressHUDMode:YZProgressHUDModeShow];
         }
     }
     if(sender.tag == 1){    // 添加方法
         //DLog(@"进入添加方法 -> senction = %ld, row = %ld",(long)indexpath.section,(long)indexpath.row);
-        
         AppModelGroup *mineGroup = [self.data objectAtIndex:0];
         if(mineGroup.itemsCount < 12){
-            AppModelGroup *allGroup = [self.data objectAtIndex:1];
-            AppModelGroup *addItem = [allGroup.items objectAtIndex:indexpath.row];
+            AppModelGroup *allGroup = [self.data objectAtIndex:indexpath.section];
+            AppModelItem *addItem = [allGroup.items objectAtIndex:indexpath.row];
             [mineGroup.items addObject:addItem];
-            [self.collectionView reloadData];
         }else{
             [MBProgressHUD showHUDView:self.view text:@"最多添加12个我的应用" progressHUDMode:YZProgressHUDModeShow];
         }
     }
-    
     [self.collectionView reloadData];
-    
     // 点击编辑按钮后设置保存按钮可点击
     self.navigationItem.rightBarButtonItem.enabled = YES;
-    
 }
 
 #pragma mark - 编辑方法
 - (void)editAppData:(UIBarButtonItem *)sender{
+    // 点击保存后暂时不能再次点击按钮
+    self.navigationItem.rightBarButtonItem.enabled = NO;
+    
     // 点击保存将数据写入SandBox覆盖以前数据
     AppModelGroup *mineGroup = [self.data objectAtIndex:0];
-    AppModelGroup *otherGroup = [self.data objectAtIndex:1];
-    AppModelGroup *allGroup = [self.data objectAtIndex:1];
-    
     NSMutableArray *mineData = [[NSMutableArray alloc] init];
-    NSMutableArray *otherData = [[NSMutableArray alloc] init];
-    NSMutableArray *allData = [[NSMutableArray alloc] init];
-    
     // 我的应用数据
     int ids = 1;
     for(AppModelItem *mineItem in mineGroup.items){
@@ -259,36 +255,25 @@ static NSString * const reuseHeaderIdentifier = @"reuseHeaderIdentifier";
         [mineData addObject:mineDict];
         ids++;
     }
-    // 其他应用数据
-    for(AppModelItem *otherItem in otherGroup.items){
-        NSInteger i = 0;
-        for(AppModelItem *mineItem in mineGroup.items){
-            if([otherItem.no isEqualToString:mineItem.no]){
-                i++;
-            }
+    [_dataDict setValue:mineData forKey:@"mineData"];
+    
+    // 向服务器提交自定义app数据
+    [[AppUtil sharedAppUtil] saveCustomData:mineData success:^(id responseObject) {
+        [MBProgressHUD showHUDView:self.view text:@"保存成功!" progressHUDMode:YZProgressHUDModeShow];
+        // 写入本地
+        BOOL res = [[AppUtil sharedAppUtil] writeAppData:_dataDict];
+        if (!res) {
+            DLog(@"App写入本地失败!");
         }
-        if(i == 0){
-            NSDictionary *otherDict = [NSDictionary dictionaryWithObjectsAndKeys:otherItem.no, @"appno", otherItem.title, @"appname", otherItem.webImg, @"appimage", otherItem.url, @"appurl", @"2", @"apptype", otherItem.isNewApp ? @"Y" : @"N", @"isnewapp", nil];
-            [otherData addObject:otherDict];
-        }
-    }
-    
-    // 全部应用数据
-    for(AppModelItem *allItem in allGroup.items){
-        NSDictionary *allDict = [NSDictionary dictionaryWithObjectsAndKeys:allItem.no, @"appno", allItem.title, @"appname", allItem.webImg, @"appimage", allItem.url, @"appurl", allItem.isNewApp ? @"Y" : @"N", @"isnewapp", nil];
-        [allData addObject:allDict];
-    }
-    
-    NSMutableDictionary *dataDict = [[NSMutableDictionary alloc] initWithObjectsAndKeys:mineData, @"mineData", otherData, @"otherData", allData, @"allData", nil];
-    
-    BOOL res = [[AppUtil sharedAppUtil] writeAppData:dataDict];
-    if(res){
-        [MBProgressHUD showHUDView:self.view text:@"保存成功！" progressHUDMode:YZProgressHUDModeShow];
-        // 点击编辑按钮后设置保存按钮可点击
+        // 点击编辑按钮后设置保存按钮不可点击
         self.navigationItem.rightBarButtonItem.enabled = NO;
-    }else{
+        
+    } failure:^(NSString *error) {
         [MBProgressHUD showHUDView:self.view text:@"保存失败，请检查原因！" progressHUDMode:YZProgressHUDModeShow];
-    }
+        self.navigationItem.rightBarButtonItem.enabled = YES;
+    } invalid:^(NSString *msg) {
+        self.navigationItem.rightBarButtonItem.enabled = YES;
+    }];
 }
 
 @end
