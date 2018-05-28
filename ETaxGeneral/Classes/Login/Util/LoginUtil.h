@@ -25,11 +25,11 @@ SingletonH(LoginUtil)
                       invalid:(void (^)(NSString *msg))invalid;
 
 // 用户注销（退出登录）方法
-/*
- - (void)logout:(void (^)(void))success
+ - (void)logout:(void (^)(NSString *msg))success
  failure:(void (^)(NSString *error))failure;
- */
 
- - (void)logout;
+- (void)clearLocalInfo;
+
+
 
 @end

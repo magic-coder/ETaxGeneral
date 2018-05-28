@@ -54,12 +54,49 @@ typedef NS_ENUM(NSInteger, LoginShowType) {
 
 @implementation LoginViewController
 
+- (void)dealloc
+{
+    [[Variable sharedVariable] removeObserver:self forKeyPath:@"vpnSuccess"];
+}
+
+- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // 监听VPN认证状态
+        [[Variable sharedVariable] addObserver:self forKeyPath:@"vpnSuccess" options:NSKeyValueObservingOptionNew context:nil];
+    }
+    return self;
+}
+
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
     self.view.backgroundColor = DEFAULT_BACKGROUND_COLOR;
     
+    [self createMainView];
+    if ([Variable sharedVariable].vpnSuccess == YES) {
+        // VPN认证成功, 开始网络请求
+        [self requestImageVerifyCode];
+    }
+}
+
+#pragma mark - 视图已经展示方法，隐藏顶部状态栏
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [UIApplication sharedApplication].statusBarHidden = YES;
+}
+
+#pragma mark - 视图已经销毁方法，显示顶部状态栏
+- (void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    [UIApplication sharedApplication].statusBarHidden = NO;
+}
+
+#pragma mark - 创建UI
+- (void)createMainView {
     // 背景
     _imageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
     _imageView.image = [UIImage imageNamed:@"login_bg"];
@@ -146,7 +183,6 @@ typedef NS_ENUM(NSInteger, LoginShowType) {
     self.passwordTextField.keyboardType = UIKeyboardTypeASCIICapable;   // 设置键盘类型
     [_smallView.contentView addSubview:self.passwordTextField];
     
-    
     self.authCodeTextField = [[UITextField alloc]initWithFrame:CGRectMake(20, CGRectGetMaxY(self.passwordTextField.frame)+10, CGRectGetWidth(self.passwordTextField.frame)-120, CGRectGetHeight(self.passwordTextField.frame))];
     self.authCodeTextField.delegate = self;
     self.authCodeTextField.layer.cornerRadius = 5;
@@ -159,14 +195,13 @@ typedef NS_ENUM(NSInteger, LoginShowType) {
     UIImageView* imgAuth = [[UIImageView alloc] initWithFrame:CGRectMake(9, 9, 22, 22)];
     imgAuth.image = [UIImage imageNamed:@"login_authcode"];
     [self.authCodeTextField.leftView addSubview:imgAuth];
-    self.authCodeTextField.keyboardType = UIKeyboardTypeNumberPad;   // 设置键盘类型
     [_smallView.contentView addSubview:self.authCodeTextField];
     
     self.sendBtn = [[UIButton alloc]initWithFrame:CGRectMake(_smallView.frameWidth-120, CGRectGetMaxY(self.passwordTextField.frame)+10, 100, 40)];
-    [self.sendBtn setTitle:@"获取验证码" forState:UIControlStateNormal];
+    [self.sendBtn setBackgroundColor:[UIColor whiteColor]];
+    [self.sendBtn setTitle:@"点击刷新" forState:UIControlStateNormal];
+    [self.sendBtn setTitleColor:HexColor(@"#969696", 1.0f) forState:UIControlStateNormal];
     self.sendBtn.titleLabel.font = [UIFont systemFontOfSize:14.0f];
-    [self.sendBtn setBackgroundImage:[UIImage imageWithColor:RgbColor(255.0, 170.0, 0.0, 1.0f)] forState:UIControlStateNormal];
-    [self.sendBtn setBackgroundImage:[UIImage imageWithColor:RgbColor(255.0, 190.0, 20.0, 1.0f)] forState:UIControlStateHighlighted];
     self.sendBtn.layer.masksToBounds = YES;
     self.sendBtn.layer.cornerRadius = 5;
     [self.sendBtn addTarget:self action:@selector(sendAction:) forControlEvents:UIControlEventTouchUpInside];
@@ -192,7 +227,6 @@ typedef NS_ENUM(NSInteger, LoginShowType) {
     [self.registerBtn addTarget:self action:@selector(registerAction:) forControlEvents:UIControlEventTouchUpInside];
     [_smallView.contentView addSubview:self.registerBtn];
     
-    
     // 自定义左上角(返回按钮)
     self.cancelBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     self.cancelBtn.frame = CGRectMake(5, 5, 45, 45);
@@ -207,21 +241,16 @@ typedef NS_ENUM(NSInteger, LoginShowType) {
     }else{
         _smallView.frame = CGRectMake(20, 150, self.view.frameWidth-40, CGRectGetMaxY(self.registerBtn.frame)+15);
     }
-    
 }
 
-#pragma mark - 视图已经展示方法，隐藏顶部状态栏
-- (void)viewWillAppear:(BOOL)animated{
-    [super viewWillAppear:animated];
-    
-    [UIApplication sharedApplication].statusBarHidden = YES;
-}
-
-#pragma mark - 视图已经销毁方法，显示顶部状态栏
-- (void)viewWillDisappear:(BOOL)animated{
-    [super viewWillDisappear:animated];
-    
-    [UIApplication sharedApplication].statusBarHidden = NO;
+// 监听VPN连接状态
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+    if ([keyPath isEqualToString:@"vpnSuccess"]) {
+        if ([Variable sharedVariable].vpnSuccess == YES) {
+            // VPN认证成功, 开始网络请求
+            [self requestImageVerifyCode];
+        }
+    }
 }
 
 #pragma mark - <UITextFieldDelegate>代理方法
@@ -238,19 +267,19 @@ typedef NS_ENUM(NSInteger, LoginShowType) {
         _imgRightHandGone.frame = CGRectMake(_imgRightHandGone.frame.origin.x - 30, _imgRightHandGone.frame.origin.y, 0, 0);
         
     } completion:^(BOOL b) {
-        if(!_isMove){
-            CGFloat rects = self.view.frameHeight - (self.smallView.frameHeight + 216 + 149);
-            if (rects <= 0) {
-                [UIView animateWithDuration:0.3 animations:^{
-                    CGRect frame = self.view.frame;
-                    frame.origin.y = rects;
-                    self.view.frame = frame;
-                }];
-            }
-            _isMove = YES;
-        }else{
-            _isMove = NO;
-        }
+//        if(!_isMove){
+//            CGFloat rects = self.view.frameHeight - (self.smallView.frameHeight + 216 + 149);
+//            if (rects <= 0) {
+//                [UIView animateWithDuration:0.3 animations:^{
+//                    CGRect frame = self.view.frame;
+//                    frame.origin.y = rects;
+//                    self.view.frame = frame;
+//                }];
+//            }
+//            _isMove = YES;
+//        }else{
+//            _isMove = NO;
+//        }
         
     }];
    
@@ -267,16 +296,16 @@ typedef NS_ENUM(NSInteger, LoginShowType) {
         _imgRightHandGone.frame = CGRectMake(_imgRightHandGone.frame.origin.x + 30, _imgRightHandGone.frame.origin.y, 40, 40);
         
     } completion:^(BOOL b) {
-        if(_isMove){
-            [UIView animateWithDuration:0.3 animations:^{
-                CGRect frame = self.view.frame;
-                frame.origin.y = 0.0f;
-                self.view.frame = frame;
-            }];
-            _isMove = NO;
-        }else{
-            _isMove = YES;
-        }
+//        if(_isMove){
+//            [UIView animateWithDuration:0.3 animations:^{
+//                CGRect frame = self.view.frame;
+//                frame.origin.y = 0.0f;
+//                self.view.frame = frame;
+//            }];
+//            _isMove = NO;
+//        }else{
+//            _isMove = YES;
+//        }
     }];
     
 }
@@ -286,43 +315,33 @@ typedef NS_ENUM(NSInteger, LoginShowType) {
     [self.view endEditing:YES];
 }
 
+#pragma mark - 查询图片验证码
+- (void)requestImageVerifyCode {
+    NSTimeInterval timestamp = [[NSDate date] timeIntervalSince1970];
+    double currentTimestamp = floor(timestamp);
+    NSString *url = [NSString stringWithFormat:@"%@account/getImageVerifyCode", SERVER_URL];// 格式化请求 URL 参数
+    NSDictionary *param = @{@"timestamp": @(currentTimestamp)};
+    [OneWayHTTPS POST:url parameters:param success:^(NSURLSessionDataTask *task, id responseObject) {
+        UIImage *image = (UIImage *)responseObject;
+        [self.sendBtn setImage:image forState:UIControlStateNormal];
+
+    } failure:^(NSURLSessionDataTask *task, NSString *error) {
+        [MBProgressHUD showHUDView:self.view text:error progressHUDMode:YZProgressHUDModeShow];
+        [self.sendBtn setImage:nil forState:UIControlStateNormal];
+    }];
+}
+
 #pragma mark - 发送验证码方法
 -(void)sendAction:(UIButton *)sender{
     
     // 防止重复点击（间隔1秒）
     CLICK_LOCK
-    
-    NSString *userCode = _usernameTextField.text;
-    if(userCode.length > 0){
-        
-        NSDictionary *dict = @{@"userCode": userCode};
-        
-        NSString *url = [NSString stringWithFormat:@"%@account/getVerificationCode", SERVER_URL];// 格式化请求 URL 参数
-        NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:[[BaseHandleUtil sharedBaseHandleUtil] JSONStringWithObject:dict], @"msg", nil];   // 格式化参数
-        
-        [OneWayHTTPS POST:url parameters:param success:^(NSURLSessionDataTask *task, id responseObject) {
-            if([@"00" isEqualToString:[responseObject objectForKey:@"statusCode"]]){    // 成功标志
-                [MBProgressHUD showHUDView:self.view text:[responseObject objectForKey:@"msg"] progressHUDMode:(YZProgressHUDModeShow)];
-                //正常状态下的背景颜色
-                UIColor *mainColor = RgbColor(255.0, 170.0, 0.0, 1.0f);
-                //倒计时状态下的颜色
-                UIColor *countColor = RgbColor(188.0, 188.0, 188.0, 0.9f);
-                [self setTheCountdownButton:sender startWithTime:59 title:@"获取验证码" countDownTitle:@"秒后重试" mainColor:mainColor countColor:countColor];
-            }else{
-                [MBProgressHUD showHUDView:self.view text:[responseObject objectForKey:@"msg"] progressHUDMode:YZProgressHUDModeShow];
-            }
-        } failure:^(NSURLSessionDataTask *task, NSString *error) {
-            [MBProgressHUD showHUDView:self.view text:error progressHUDMode:YZProgressHUDModeShow];
-        }];
-        
-    }else{
-        [MBProgressHUD showHUDView:self.view text:@"请输入用户名，再获取验证码！" progressHUDMode:(YZProgressHUDModeShow)];
-    }
+    [self requestImageVerifyCode];
 }
 
 #pragma mark - 登录方法
 -(void)loginAction:(UIButton *)sender{
-    
+    [self.view endEditing:YES];
     // 防止重复点击（间隔1秒）
     CLICK_LOCK
     
@@ -335,9 +354,9 @@ typedef NS_ENUM(NSInteger, LoginShowType) {
         [MBProgressHUD showHUDView:self.view text:@"登录中..." progressHUDMode:(YZProgressHUDModeLock)];
         
         NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-        [dict setObject:userCode forKey:@"userCode"];
-        [dict setObject:password forKey:@"password"];
-        [dict setObject:authCode forKey:@"verificationCode"];
+        [dict setValue:userCode forKey:@"userMobile"];
+        [dict setValue:password forKey:@"password"];
+        [dict setValue:authCode forKey:@"imageVerifyCode"];
         
         [[LoginUtil sharedLoginUtil] loginWithAppDict:dict success:^{
             [MBProgressHUD hiddenHUDView:self.view];
@@ -345,6 +364,8 @@ typedef NS_ENUM(NSInteger, LoginShowType) {
         } failure:^(NSString *error) {
             [MBProgressHUD hiddenHUDView:self.view];
             [MBProgressHUD showHUDView:self.view text:error progressHUDMode:YZProgressHUDModeShow];
+            // 查询失败后刷新图形验证码
+            [self requestImageVerifyCode];
         }];
     }else{
         if(userCode.length <= 0){
@@ -363,7 +384,12 @@ typedef NS_ENUM(NSInteger, LoginShowType) {
 
 #pragma mark - 添加注册方法
 - (void)registerAction:(UIButton *)sender{
-    DLog(@"点击了注册按钮...");
+    NSString *url = [NSString stringWithFormat:@"%@account/register", SERVER_URL];
+    BaseWebViewController *webVC = [[BaseWebViewController alloc] initWithURL:url];
+    webVC.title = @"注册";
+//    webVC.jz_navigationBarBackgroundAlpha = 1.0f;
+    [self.navigationController pushViewController:webVC animated:YES];
+
 }
 
 #pragma mark - 取消方法
