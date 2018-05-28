@@ -251,7 +251,7 @@
                 [alert makeAlertTypeWarning];
 
                 [alert doneActionBlock:^{
-                    [[LoginUtil sharedLoginUtil] logout];
+                    [[LoginUtil sharedLoginUtil] clearLocalInfo];
                     [self dismissViewControllerAnimated:YES completion:nil];
                 }];
                 

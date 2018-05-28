@@ -97,7 +97,7 @@
                                andButtons:nil];
                 [alert makeAlertTypeWarning];
                 [alert doneActionBlock:^{
-                    [[LoginUtil sharedLoginUtil] logout];
+                    [[LoginUtil sharedLoginUtil] clearLocalInfo];
                     [self.navigationController popToViewController:self.navigationController.viewControllers[0] animated:YES];
                 }];
                 
